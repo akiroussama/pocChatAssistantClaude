@@ -5,8 +5,16 @@ const dotenv = require('dotenv');
 const Document = require('./models/Document');
 const Anthropic = require('@anthropic-ai/sdk');
 
+dotenv.config();
+
+const apiKey = process.env.ANTHROPIC_API_KEY;
+if (!apiKey) {
+  console.error('ANTHROPIC_API_KEY is not defined in the .env file');
+  process.exit(1);
+}
+console.log("apiKey", apiKey);
 const client = new Anthropic({
-    apiKey: process.env['ANTHROPIC_API_KEY'], // This is the default and can be omitted
+    apiKey: apiKey, // This is the default and can be omitted
 });
 // Charger les variables d'environnement
 dotenv.config();
