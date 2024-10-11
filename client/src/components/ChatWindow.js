@@ -1,24 +1,79 @@
-import React from 'react';
-import { Box, Typography, Paper } from '@mui/material';
+import React, { useRef, useEffect } from 'react';
+import { Box, Typography, Paper, Avatar, Chip } from '@mui/material';
+import { format, isValid } from 'date-fns';
 
 function ChatWindow({ messages }) {
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(scrollToBottom, [messages]);
+
+  const renderMessageContent = (msg) => {
+    debugger
+    if (msg.type === 'text') {
+      return <Typography variant="body1">{msg.content}</Typography>;
+    } else if (msg.type === 'file') {
+      return (
+        <Box>
+          <Typography variant="body2">Fichier partagé:</Typography>
+          <Chip
+            label={msg.fileName}
+            onClick={() => window.open(msg.fileUrl, '_blank')}
+            sx={{ cursor: 'pointer', marginTop: 1 }}
+          />
+        </Box>
+      );
+    }
+    return null;
+  };
+
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    if (isValid(date)) {
+      return format(date, 'HH:mm');
+    }
+    return '';
+  };
+
   return (
-    <Box sx={{ maxHeight: '400px', overflowY: 'auto', padding: 2 }}>
+    <Box sx={{ height: '70vh', overflowY: 'auto', padding: 2, backgroundColor: '#f5f5f5' }}>
       {messages.map((msg, index) => (
-        <Paper
+        <Box
           key={index}
           sx={{
-            marginBottom: 1,
-            padding: 1,
-            backgroundColor: msg.sender === 'user' ? '#e3f2fd' : '#f1f8e9',
-            textAlign: msg.sender === 'user' ? 'right' : 'left',
+            display: 'flex',
+            justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+            marginBottom: 2,
           }}
         >
-          <Typography variant="body1">
-            <strong>{msg.sender === 'user' ? 'Vous' : 'Assistant'}</strong>: {msg.text}
-          </Typography>
-        </Paper>
+          {msg.sender !== 'user' && (
+            <Avatar sx={{ marginRight: 1, bgcolor: 'primary.main' }}>AI</Avatar>
+          )}
+          <Paper
+            elevation={1}
+            sx={{
+              maxWidth: '70%',
+              padding: 2,
+              backgroundColor: msg.sender === 'user' ? '#e3f2fd' : '#ffffff',
+              borderRadius: '20px',
+              borderTopRightRadius: msg.sender === 'user' ? 0 : '20px',
+              borderTopLeftRadius: msg.sender === 'user' ? '20px' : 0,
+            }}
+          >
+            {renderMessageContent(msg)}
+            <Typography variant="caption" sx={{ display: 'block', marginTop: 1, color: 'text.secondary' }}>
+              {formatTimestamp(msg.timestamp)}
+            </Typography>
+          </Paper>
+          {msg.sender === 'user' && (
+            <Avatar sx={{ marginLeft: 1, bgcolor: 'secondary.main' }}>U</Avatar>
+          )}
+        </Box>
       ))}
+      <div ref={messagesEndRef} />
     </Box>
   );
 }
