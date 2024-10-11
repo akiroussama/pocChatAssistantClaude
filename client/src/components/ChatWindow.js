@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Box, Typography, Paper, Avatar, Chip } from '@mui/material';
+import { Box, Typography, Paper, Avatar } from '@mui/material';
 import { format, isValid } from 'date-fns';
 
 function ChatWindow({ messages }) {
@@ -12,25 +12,20 @@ function ChatWindow({ messages }) {
   useEffect(scrollToBottom, [messages]);
 
   const renderMessageContent = (msg) => {
-    debugger
-    if (msg.type === 'text') {
-      return <Typography variant="body1">{msg.content}</Typography>;
-    } else if (msg.type === 'file') {
-      return (
-        <Box>
-          <Typography variant="body2">Fichier partagé:</Typography>
-          <Chip
-            label={msg.fileName}
-            onClick={() => window.open(msg.fileUrl, '_blank')}
-            sx={{ cursor: 'pointer', marginTop: 1 }}
-          />
-        </Box>
-      );
+    // Check if the message has a 'text' property
+    if (msg.text) {
+      return <Typography variant="body1">{msg.text}</Typography>;
     }
+    // If there's no 'text' property, check for 'content' as a fallback
+    if (msg.content) {
+      return <Typography variant="body1">{msg.content}</Typography>;
+    }
+    // If neither 'text' nor 'content' exists, return null
     return null;
   };
 
   const formatTimestamp = (timestamp) => {
+    if (!timestamp) return '';
     const date = new Date(timestamp);
     if (isValid(date)) {
       return format(date, 'HH:mm');
@@ -64,9 +59,11 @@ function ChatWindow({ messages }) {
             }}
           >
             {renderMessageContent(msg)}
-            <Typography variant="caption" sx={{ display: 'block', marginTop: 1, color: 'text.secondary' }}>
-              {formatTimestamp(msg.timestamp)}
-            </Typography>
+            {msg.timestamp && (
+              <Typography variant="caption" sx={{ display: 'block', marginTop: 1, color: 'text.secondary' }}>
+                {formatTimestamp(msg.timestamp)}
+              </Typography>
+            )}
           </Paper>
           {msg.sender === 'user' && (
             <Avatar sx={{ marginLeft: 1, bgcolor: 'secondary.main' }}>U</Avatar>
