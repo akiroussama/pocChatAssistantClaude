@@ -1,0 +1,21 @@
+{
+    "name": "your-project-name",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+      "server",
+      "client"
+    ],
+    "scripts": {
+      "start": "concurrently \"npm run start:server\" \"npm run start:client\"",
+      "start:server": "npm start --prefix server",
+      "start:client": "npm start --prefix client",
+      "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+      "dev:server": "npm run dev --prefix server",
+      "dev:client": "npm start --prefix client",
+      "install:all": "npm install && npm install --prefix server && npm install --prefix client"
+    },
+    "devDependencies": {
+      "concurrently": "^6.2.0"
+    }
+  }
